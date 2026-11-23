@@ -4,6 +4,7 @@ import io.github.giorgionalba.transactions.domain.ParentTransactionNotFoundExcep
 import io.github.giorgionalba.transactions.domain.Transaction;
 import io.github.giorgionalba.transactions.domain.TransactionAlreadyExistsException;
 import io.github.giorgionalba.transactions.domain.TransactionRepository;
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,6 +21,10 @@ public class TransactionService {
         if (!repository.saveIfAbsent(transaction)) {
             throw new TransactionAlreadyExistsException(transaction.id());
         }
+    }
+
+    public List<Long> findIdsByType(String type) {
+        return repository.findIdsByType(type);
     }
 
     private void requireParentExists(Transaction transaction) {
