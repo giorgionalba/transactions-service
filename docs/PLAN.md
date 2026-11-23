@@ -194,3 +194,7 @@ Cada PR sale de `main`, se escribe en español con el template **Qué / Cambios*
 
 - `docs: agrega README con instrucciones, API y resumen del diseño`
 - `docs: alinea los docs con la API y el código reales`
+
+### PR 7 — `docs/simplify-claude-md`
+
+- `docs: simplifica CLAUDE.md y quita la repetición del stack`
