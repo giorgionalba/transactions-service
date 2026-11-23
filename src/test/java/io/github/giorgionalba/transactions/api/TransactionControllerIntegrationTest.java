@@ -1,6 +1,7 @@
 package io.github.giorgionalba.transactions.api;
 
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -77,6 +78,27 @@ class TransactionControllerIntegrationTest {
                 .andExpect(status().isConflict())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                 .andExpect(jsonPath("$.detail").value("Transaction 10 already exists"));
+    }
+
+    @Test
+    void shouldReturnIdsOfTheRequestedType() throws Exception {
+        // given
+        putTransaction("10", VALID_BODY);
+        putTransaction("11", """
+                { "amount": 10000, "type": "shopping" }
+                """);
+
+        // when / then
+        mockMvc.perform(get("/transactions/types/{type}", "cars"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("[10]"));
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenTypeHasNoTransactions() throws Exception {
+        mockMvc.perform(get("/transactions/types/{type}", "cars"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("[]"));
     }
 
     private static Stream<Arguments> invalidBodies() {

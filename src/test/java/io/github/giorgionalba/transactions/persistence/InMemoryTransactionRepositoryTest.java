@@ -3,6 +3,7 @@ package io.github.giorgionalba.transactions.persistence;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.giorgionalba.transactions.domain.Transaction;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class InMemoryTransactionRepositoryTest {
@@ -37,5 +38,19 @@ class InMemoryTransactionRepositoryTest {
     @Test
     void shouldReportMissingTransactionAsNonExistent() {
         assertThat(repository.existsById(99L)).isFalse();
+    }
+
+    @Test
+    void shouldFindIdsByTypeInAscendingOrder() {
+        // given
+        repository.saveIfAbsent(new Transaction(12L, 5000.0, "cars", null));
+        repository.saveIfAbsent(new Transaction(11L, 10000.0, "shopping", null));
+        repository.saveIfAbsent(new Transaction(10L, 3000.0, "cars", null));
+
+        // when
+        List<Long> ids = repository.findIdsByType("cars");
+
+        // then
+        assertThat(ids).containsExactly(10L, 12L);
     }
 }
