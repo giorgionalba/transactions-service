@@ -2,6 +2,7 @@ package io.github.giorgionalba.transactions.api;
 
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -45,13 +46,37 @@ class TransactionControllerIntegrationTest {
     @MethodSource("invalidBodies")
     void shouldReturnBadRequestWhenBodyIsInvalid(String body) throws Exception {
         putTransaction("10", body)
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON));
     }
 
     @Test
     void shouldReturnBadRequestWhenIdIsNotPositive() throws Exception {
         putTransaction("0", VALID_BODY)
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON));
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenParentDoesNotExist() throws Exception {
+        putTransaction("11", """
+                { "amount": 10000, "type": "shopping", "parent_id": 99 }
+                """)
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.detail").value("Parent transaction 99 does not exist"));
+    }
+
+    @Test
+    void shouldReturnConflictWhenTransactionAlreadyExists() throws Exception {
+        // given
+        putTransaction("10", VALID_BODY);
+
+        // when / then
+        putTransaction("10", VALID_BODY)
+                .andExpect(status().isConflict())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.detail").value("Transaction 10 already exists"));
     }
 
     private static Stream<Arguments> invalidBodies() {
