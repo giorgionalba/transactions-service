@@ -71,14 +71,15 @@ Reglas de dependencia (las flechas sólo apuntan hacia `domain`):
 
 - **S — Single Responsibility:** cada clase tiene un motivo para cambiar. El controller sólo traduce HTTP, el service sólo aplica reglas de negocio y el repository sólo guarda e indexa. Si una clase empieza a hacer dos cosas, se separa.
 - **O — Open/Closed:** agregar otro almacenamiento (Redis, por ejemplo) = nueva implementación de `TransactionRepository`, sin tocar el service.
-- **L — Liskov:** cualquier implementación del repository tiene que respetar el mismo contrato (por ejemplo, que `saveIfAbsent` sea atómico). El Javadoc de la interfaz lo documenta.
+- **L — Liskov:** cualquier implementación del repository tiene que respetar el mismo contrato (por ejemplo, que `saveIfAbsent` sea atómico). El contrato está documentado en `docs/DECISIONS.md`.
 - **I — Interface Segregation:** el puerto expone sólo lo que el service usa. Nada de métodos "por si acaso".
 - **D — Dependency Inversion:** el service depende de la interfaz `TransactionRepository` (definida en `domain`), no de la clase en memoria. La inyección es **por constructor**, nunca `@Autowired` en campos.
 
 ## Buenas prácticas de código
 
 - **Nombres que expliquen la intención.** Nada de `data`, `tmp`, `util`, `manager`. Los métodos son verbos (`create`, `sumWithDescendants`).
-- **Métodos cortos** con un solo nivel de abstracción. Si hace falta un comentario para explicar *qué* hace un bloque, va un método con buen nombre. Los comentarios son para el *porqué*.
+- **Métodos cortos** con un solo nivel de abstracción. Si un bloque necesita explicación, se extrae a un método con buen nombre.
+- **Sin comentarios ni Javadoc en el código.** Los nombres tienen que explicar la intención y el *porqué* de las decisiones va en `docs/DECISIONS.md`. La única excepción son los marcadores `// given`, `// when` y `// then` de los tests.
 - **Inmutabilidad por defecto:** `record` para el dominio y los DTOs, campos `final` y colecciones devueltas como copias inmutables (`List.copyOf`).
 - **Fallar rápido:** se valida en el borde (Bean Validation en el DTO) y las invariantes en el dominio. No se devuelve `null`: se usa `Optional` en lecturas del repository.
 - **Sin estado mutable compartido** fuera del repository. El repository es thread-safe (servidor web = concurrencia).
@@ -112,7 +113,7 @@ Pirámide:
 
 | Qué | Idioma |
 |---|---|
-| Código (clases, métodos, variables, comentarios, tests) | Inglés |
+| Código (clases, métodos, variables, tests) | Inglés |
 | Mensajes de commit | Español, en Conventional Commits (el tipo y el scope quedan en inglés) |
 | PRs (título y descripción) | Español |
 | Documentación (`README`, `docs/`) | Español |
