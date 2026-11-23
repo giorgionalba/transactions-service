@@ -1,6 +1,7 @@
 package io.github.giorgionalba.transactions.service;
 
 import io.github.giorgionalba.transactions.domain.Transaction;
+import io.github.giorgionalba.transactions.domain.TransactionAlreadyExistsException;
 import io.github.giorgionalba.transactions.domain.TransactionRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,8 @@ public class TransactionService {
     }
 
     public void create(Transaction transaction) {
-        repository.saveIfAbsent(transaction);
+        if (!repository.saveIfAbsent(transaction)) {
+            throw new TransactionAlreadyExistsException(transaction.id());
+        }
     }
 }
