@@ -14,5 +14,6 @@ public class TransactionService {
     }
 
     public void create(Transaction transaction) {
+        repository.saveIfAbsent(transaction);
     }
 }
