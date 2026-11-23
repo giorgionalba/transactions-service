@@ -66,8 +66,6 @@ Esto incluye el caso `PUT /transactions/5 { "parent_id": 5 }`: al validar, la tr
 - La suma se serializa como `20000.0`. En JSON es el mismo número que `20000`.
 - JSON no admite `NaN` ni `Infinity`, así que esos valores no pueden entrar por la API.
 
-**Testing.** Los montos con decimales se comparan con tolerancia (`closeTo(0.3, 1e-9)`), nunca con igualdad exacta.
-
 ---
 
 ## 5. Contrato HTTP
@@ -130,11 +128,9 @@ Los errores usan `ProblemDetail` (RFC 9457), que Spring incluye de fábrica:
 
 ```json
 {
-  "type": "about:blank",
-  "title": "Not Found",
-  "status": 404,
   "detail": "Parent transaction 999 does not exist",
-  "instance": "/transactions/50"
+  "status": 404,
+  "title": "Not Found"
 }
 ```
 
@@ -187,9 +183,9 @@ flowchart TB
 **Estructuras** (todas thread-safe):
 
 ```java
-Map<Long, Transaction>   transactions  // ConcurrentHashMap: id → transacción
-Map<String, Set<Long>>   idsByType     // ConcurrentHashMap + ConcurrentSkipListSet (ordenado)
-Map<Long, Set<Long>>     childrenById  // ConcurrentHashMap + set concurrente: padre → hijos
+Map<Long, Transaction>   transactionsById       // ConcurrentHashMap: id → transacción
+Map<String, Set<Long>>   idsByType              // ConcurrentHashMap + ConcurrentSkipListSet (ordenado)
+Map<Long, Set<Long>>     childrenIdsByParentId  // ConcurrentHashMap + set concurrente: padre → hijos
 ```
 
 **Índices.** Permiten responder sin recorrer todas las transacciones:
@@ -210,7 +206,7 @@ Map<Long, Set<Long>>     childrenById  // ConcurrentHashMap + set concurrente: p
 
 ## 9. Cálculo de la suma
 
-**Decisión.** La suma se calcula en el momento de la consulta, con un recorrido en profundidad (DFS) **iterativo** sobre el índice `childrenById`, usando un `ArrayDeque` como pila.
+**Decisión.** La suma se calcula en el momento de la consulta, con un recorrido en profundidad (DFS) **iterativo** sobre el índice `childrenIdsByParentId`, usando un `ArrayDeque` como pila.
 
 **Justificación.**
 
@@ -237,6 +233,7 @@ Map<Long, Set<Long>>     childrenById  // ConcurrentHashMap + set concurrente: p
 
 - **Multi-stage:** la etapa de build usa Maven + JDK 21, y la imagen final sólo incluye el **JRE 21** y el jar. Queda más chica y sin herramientas de build.
 - **Usuario no-root** en runtime.
+- **Sin tests en el build de la imagen** (`-DskipTests`): los tests corren en el CI en cada PR. Repetirlos al construir la imagen duplicaría el tiempo sin aportar información nueva.
 - **Caché de capas:** se copia primero el `pom.xml` y se descargan las dependencias, y después el código. Un cambio en el código no vuelve a descargar las dependencias.
 
 ---
