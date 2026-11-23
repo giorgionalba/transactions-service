@@ -101,6 +101,35 @@ class TransactionControllerIntegrationTest {
                 .andExpect(content().string("[]"));
     }
 
+    @Test
+    void shouldReturnSumOfTransactionAndItsDescendants() throws Exception {
+        // given
+        putTransaction("10", VALID_BODY);
+        putTransaction("11", """
+                { "amount": 10000, "type": "shopping", "parent_id": 10 }
+                """);
+
+        // when / then
+        mockMvc.perform(get("/transactions/sum/{id}", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sum").value(15000.0));
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenTransactionToSumDoesNotExist() throws Exception {
+        mockMvc.perform(get("/transactions/sum/{id}", "99"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.detail").value("Transaction 99 does not exist"));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenSumIdIsNotPositive() throws Exception {
+        mockMvc.perform(get("/transactions/sum/{id}", "0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON));
+    }
+
     private static Stream<Arguments> invalidBodies() {
         return Stream.of(
                 argumentSet("missing amount", """
