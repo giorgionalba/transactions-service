@@ -31,4 +31,9 @@ public class TransactionController {
     public List<Long> findIdsByType(@PathVariable String type) {
         return transactionService.findIdsByType(type);
     }
+
+    @GetMapping("/sum/{id}")
+    public SumResponse sumWithDescendants(@PathVariable @Positive long id) {
+        return new SumResponse(transactionService.sumWithDescendants(id));
+    }
 }
