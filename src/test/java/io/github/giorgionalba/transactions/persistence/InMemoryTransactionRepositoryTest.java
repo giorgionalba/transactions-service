@@ -53,4 +53,29 @@ class InMemoryTransactionRepositoryTest {
         // then
         assertThat(ids).containsExactly(10L, 12L);
     }
+
+    @Test
+    void shouldFindTransactionById() {
+        // given
+        Transaction transaction = new Transaction(10L, 5000.0, "cars", null);
+        repository.saveIfAbsent(transaction);
+
+        // when / then
+        assertThat(repository.findById(10L)).contains(transaction);
+    }
+
+    @Test
+    void shouldFindDirectChildrenIds() {
+        // given
+        repository.saveIfAbsent(new Transaction(10L, 5000.0, "cars", null));
+        repository.saveIfAbsent(new Transaction(11L, 10000.0, "shopping", 10L));
+        repository.saveIfAbsent(new Transaction(12L, 5000.0, "shopping", 10L));
+        repository.saveIfAbsent(new Transaction(13L, 200.0, "shopping", 11L));
+
+        // when
+        List<Long> childrenIds = repository.findChildrenIds(10L);
+
+        // then
+        assertThat(childrenIds).containsExactlyInAnyOrder(11L, 12L);
+    }
 }

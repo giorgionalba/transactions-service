@@ -4,6 +4,7 @@ import io.github.giorgionalba.transactions.domain.Transaction;
 import io.github.giorgionalba.transactions.domain.TransactionRepository;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -37,5 +38,15 @@ public class InMemoryTransactionRepository implements TransactionRepository {
     private void indexByType(Transaction transaction) {
         idsByType.computeIfAbsent(transaction.type(), type -> new ConcurrentSkipListSet<>())
                 .add(transaction.id());
+    }
+
+    @Override
+    public Optional<Transaction> findById(long id) {
+        return Optional.empty();
+    }
+
+    @Override
+    public List<Long> findChildrenIds(long parentId) {
+        return List.of();
     }
 }
