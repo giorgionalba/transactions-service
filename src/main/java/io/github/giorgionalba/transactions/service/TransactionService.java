@@ -27,6 +27,10 @@ public class TransactionService {
         return repository.findIdsByType(type);
     }
 
+    public double sumWithDescendants(long id) {
+        return 0;
+    }
+
     private void requireParentExists(Transaction transaction) {
         if (transaction.hasParent() && !repository.existsById(transaction.parentId())) {
             throw new ParentTransactionNotFoundException(transaction.parentId());
