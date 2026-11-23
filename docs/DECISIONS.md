@@ -229,7 +229,7 @@ Map<Long, Set<Long>>     childrenById  // ConcurrentHashMap + set concurrente: p
 - **Integración:** `@SpringBootTest` + MockMvc contra el contexto completo de Spring. Cubre serialización, validación y manejo de errores.
 - **Aislamiento:** Spring reutiliza el contexto entre tests, y con él el repository y sus datos. Los tests de integración usan `@DirtiesContext(classMode = AFTER_EACH_TEST_METHOD)` para arrancar cada test con un contexto nuevo. Cuesta unos segundos más de build, y a cambio ningún test depende del orden de ejecución ni de los datos de otro.
 - **Aceptación:** el escenario de ejemplo de la API (transacciones 10, 11 y 12) es un test de integración literal.
-- **Casos borde:** id duplicado (`409`), padre inexistente (`404`), suma de una hoja, cadena profunda, tipo sin transacciones y montos decimales.
+- **Casos borde:** id duplicado (`409`), padre inexistente (`404`), ids no positivos (`400`), suma de una hoja, cadena profunda y tipo sin transacciones.
 
 ---
 
