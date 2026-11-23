@@ -80,9 +80,11 @@ Esto incluye el caso `PUT /transactions/5 { "parent_id": 5 }`: al validar, la tr
 | `amount` o `type` faltan, o `type` está en blanco | `400` |
 | JSON mal formado o tipos inválidos (`"amount": "abc"`) | `400` |
 | `{id}` no numérico o fuera del rango de `long` | `400` |
+| `{id}` o `parent_id` menor o igual a 0 | `400` |
 | `parent_id` inexistente | `404` |
 | `{id}` existente | `409` |
 | `parent_id` ausente o `null` | Se crea como raíz |
+| `amount` en cero o negativo | Se acepta |
 | Campos desconocidos en el body | Se ignoran |
 
 **Orden de validación:** `400` → `404` → `409`. Primero se valida que la request sea correcta (en el controller) y después que sea compatible con el estado actual (en el service).
@@ -103,7 +105,19 @@ Esto incluye el caso `PUT /transactions/5 { "parent_id": 5 }`: al validar, la tr
 |---|---|
 | La transacción existe | `200 {"sum": 20000.0}` |
 | La transacción no existe | `404` |
-| `{id}` no numérico | `400` |
+| `{id}` no numérico o menor o igual a 0 | `400` |
+
+### Ids positivos
+
+Los ids de las transacciones (`{id}` y `parent_id`) son enteros **mayores a 0**.
+
+- Un id menor o igual a 0 nunca puede existir, así que se trata como un dato **mal formado** (`400`), igual que un id no numérico. No es un recurso inexistente (`404`).
+- La regla aplica en todos los endpoints que reciben un id: **`400` si el id es inválido, `404` si es válido pero no existe**.
+- La ausencia de padre se representa con `parent_id` ausente o `null`, nunca con un valor especial como `0`.
+
+### Montos en cero o negativos
+
+`amount` acepta cualquier valor numérico, incluidos `0` y los negativos. Como las transacciones son inmutables (decisión 2), una corrección se registra con otra transacción, y para revertir un monto hace falta un monto negativo.
 
 ### Colección vacía vs. recurso inexistente
 

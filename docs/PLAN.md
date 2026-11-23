@@ -147,14 +147,15 @@ Cada PR sale de `main`, se escribe en español con el template **Qué / Cambios*
 
 ### PR 2 — `feat/create-transaction`
 
-1. `test(persistence): ...` → `feat(domain): agrega el record Transaction y el puerto TransactionRepository`
-2. `feat(persistence): agrega el repositorio en memoria con saveIfAbsent atómico`
-3. `test(service): cubre la creación de una transacción` → `feat(service): crea transacciones`
-4. `test(service): cubre el caso de id duplicado` → `feat(service): lanza TransactionAlreadyExistsException si el id existe`
-5. `test(service): cubre el caso de padre inexistente` → `feat(service): valida que exista la transacción padre`
-6. `test(api): cubre que PUT devuelva status ok` → `feat(api): agrega el endpoint PUT /transactions/{id}`
-7. `test(api): cubre que un body inválido devuelva 400` → `feat(api): valida el body de la request`
-8. `feat(api): mapea las excepciones de dominio a ProblemDetail (404/409)`
+1. `docs: registra las reglas de ids y montos, y la estrategia de merge`
+2. `feat(domain): agrega el record Transaction y el puerto TransactionRepository`
+3. `test(persistence): cubre el alta en el repositorio en memoria` → `feat(persistence): implementa el alta atómica con saveIfAbsent`
+4. `test(service): cubre la creación de una transacción` → `feat(service): crea transacciones`
+5. `test(service): cubre el caso de id duplicado` → `feat(service): lanza TransactionAlreadyExistsException si el id existe`
+6. `test(service): cubre el caso de padre inexistente` → `feat(service): valida que exista la transacción padre`
+7. `test(api): cubre que PUT devuelva status ok` → `feat(api): agrega el endpoint PUT /transactions/{id}`
+8. `test(api): cubre que una request inválida devuelva 400` → `feat(api): valida el body y los ids de la request`
+9. `test(api): cubre los errores 404 y 409 con ProblemDetail` → `feat(api): mapea las excepciones de dominio a ProblemDetail`
 
 ### PR 3 — `feat/transactions-by-type`
 
