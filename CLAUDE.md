@@ -13,30 +13,8 @@ Guía para trabajar en este repo (para Claude y para cualquier persona que contr
 Documentación:
 
 - [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md): qué tiene que hacer el servicio.
-- [`docs/DECISIONS.md`](docs/DECISIONS.md): decisiones de diseño y reglas de negocio.
+- [`docs/DECISIONS.md`](docs/DECISIONS.md): decisiones de diseño, stack y reglas de negocio.
 - [`docs/PLAN.md`](docs/PLAN.md): diseño de alto nivel y plan de PRs.
-
-Cómo se trabaja:
-
-- Toda decisión de diseño no trivial queda registrada en [`docs/DECISIONS.md`](docs/DECISIONS.md) con su justificación.
-- Si algo no está definido por los requisitos ni por `DECISIONS.md`, **se pregunta antes de implementar**. No se asume.
-- Se prefiere la solución simple y explicable antes que la "ingeniosa".
-
-## Stack
-
-| Qué | Elección |
-|---|---|
-| Lenguaje | Java 21 (LTS) |
-| Framework | Spring Boot 4.2.x (Spring MVC) |
-| Build | Maven con wrapper (`./mvnw`) |
-| Tests | JUnit 6 (Jupiter), AssertJ, MockMvc (`@SpringBootTest`) |
-| Validación | Jakarta Bean Validation (`spring-boot-starter-validation`) |
-| Errores | `ProblemDetail` (RFC 9457) vía `@RestControllerAdvice` |
-| Persistencia | En memoria con `ConcurrentHashMap`, **sin SQL** |
-| Contenedor | Dockerfile multi-stage, JRE 21, usuario no-root |
-| CI | GitHub Actions |
-
-**No se usa:** Lombok (los `record` cubren el caso), bases de datos, H2, ni librerías que no se puedan justificar en una frase.
 
 ## Comandos
 
@@ -121,7 +99,6 @@ Pirámide:
 ## Git y PRs
 
 - **Nunca commitear, pushear ni abrir PRs sin aprobación explícita del autor.**
-- **Nunca agregar `Co-Authored-By` ni ninguna otra atribución a Claude o a una IA**, ni en commits ni en PRs.
 - **Flujo:** cada funcionalidad se trabaja en una rama que sale de `main`, se abre un PR y, con el CI en verde, se mergea a `main`. Nunca se commitea directo a `main`.
 - **Merge:** siempre con **merge commit**, nunca con squash. Así los commits del ciclo TDD quedan en el historial de `main` y se ve qué commits entraron en cada PR.
 - Nombres de rama: `feat/...`, `fix/...`, `chore/...`, `docs/...`, `test/...`, `build/...`, `ci/...`.
