@@ -31,6 +31,7 @@ Los diagramas muestran el camino exitoso. Los errores se resuelven así:
 | `PUT` | Body o id inválido | `TransactionController` (validación), antes de llamar al service | `400` |
 | `PUT` | Padre inexistente | `TransactionService` → `ParentTransactionNotFoundException` | `404` |
 | `PUT` | Id existente | `TransactionService` → `TransactionAlreadyExistsException` | `409` |
+| `GET sum` | Id inválido | `TransactionController` (validación), antes de llamar al service | `400` |
 | `GET sum` | Transacción inexistente | `TransactionService` → `TransactionNotFoundException` | `404` |
 
 Las excepciones de dominio las traduce `GlobalExceptionHandler` a `ProblemDetail`.
@@ -139,49 +140,57 @@ Cada PR sale de `main`, se escribe en español con el template **Qué / Cambios*
 
 ### PR 1 — `chore/project-setup`
 
-- `chore: inicializa el proyecto Spring Boot 4.2 con Maven wrapper` (desde start.spring.io: Web MVC + Validation)
+- `chore: inicializa el proyecto Spring Boot 4.2 con Maven wrapper`
+- `test: verifica que el contexto de la aplicación levante`
 - `docs: agrega CLAUDE.md, requisitos, decisiones de diseño y plan de implementación`
 - `chore: agrega el template de pull request`
 - `ci: corre ./mvnw verify en cada PR y push a main`
-- `test: verifica que el contexto de la aplicación levante`
 
 ### PR 2 — `feat/create-transaction`
 
-1. `docs: registra las reglas de ids y montos, y la estrategia de merge`
-2. `feat(domain): agrega el record Transaction y el puerto TransactionRepository`
-3. `test(persistence): cubre el alta en el repositorio en memoria` → `feat(persistence): implementa el alta atómica con saveIfAbsent`
-4. `test(service): cubre la creación de una transacción` → `feat(service): crea transacciones`
-5. `test(service): cubre el caso de id duplicado` → `feat(service): lanza TransactionAlreadyExistsException si el id existe`
-6. `test(service): cubre el caso de padre inexistente` → `feat(service): valida que exista la transacción padre`
-7. `test(api): cubre que PUT devuelva status ok` → `feat(api): agrega el endpoint PUT /transactions/{id}`
-8. `test(api): cubre que una request inválida devuelva 400` → `feat(api): valida el body y los ids de la request`
-9. `test(api): cubre los errores 404 y 409 con ProblemDetail` → `feat(api): mapea las excepciones de dominio a ProblemDetail`
+- `docs: registra las reglas de ids y montos, y la estrategia de merge`
+- `feat(domain): agrega el record Transaction y el puerto TransactionRepository`
+- `test(persistence): cubre el alta en el repositorio en memoria`
+- `feat(persistence): implementa el alta atómica con saveIfAbsent`
+- `refactor(domain): quita el Javadoc del dominio`
+- `docs: define que el código no lleva comentarios`
+- `test(service): cubre la creación de una transacción`
+- `feat(service): crea transacciones`
+- `test(service): cubre el caso de id duplicado`
+- `feat(service): lanza TransactionAlreadyExistsException si el id existe`
+- `test(service): cubre el caso de padre inexistente`
+- `feat(service): valida que exista la transacción padre`
+- `test(api): cubre que PUT devuelva status ok`
+- `feat(api): agrega el endpoint PUT /transactions/{id}`
+- `test(api): cubre que una request inválida devuelva 400`
+- `feat(api): valida el body y los ids de la request`
+- `test(api): cubre los errores 404 y 409 con ProblemDetail`
+- `feat(api): mapea las excepciones de dominio a ProblemDetail`
 
 ### PR 3 — `feat/transactions-by-type`
 
-1. `test(persistence): cubre el índice por tipo` → `feat(persistence): mantiene el índice de ids por tipo`
-2. `test(api): cubre la consulta por tipo` → `feat(api): agrega el endpoint GET /transactions/types/{type}`
-3. Casos: tipo sin transacciones → `[]`, y orden ascendente.
+- `test(persistence): cubre el índice de ids por tipo`
+- `feat(persistence): mantiene el índice de ids por tipo`
+- `test(api): cubre la consulta de ids por tipo`
+- `feat(api): agrega el endpoint GET /transactions/types/{type}`
 
 ### PR 4 — `feat/transaction-sum`
 
-1. `test(persistence): cubre el índice de hijos` → `feat(persistence): mantiene el índice de hijos por padre`
-2. `test(service): cubre que la suma de una hoja sea su monto` → `feat(service): suma una transacción con sus descendientes`
-3. `test(service): cubre que la suma incluya todo el subárbol`
-4. `test(service): cubre que una cadena profunda no desborde el stack` (asegura el DFS iterativo)
-5. `test(api): cubre la consulta de suma` → `feat(api): agrega el endpoint GET /transactions/sum/{id}` + `404`
-6. `test: agrega el test de aceptación con el escenario de ejemplo de la API`
+- `test(persistence): cubre la búsqueda por id y el índice de hijos`
+- `feat(persistence): agrega la búsqueda por id y el índice de hijos`
+- `test(service): cubre la suma de una transacción con sus descendientes`
+- `feat(service): suma una transacción con sus descendientes`
+- `test(api): cubre la consulta de la suma`
+- `feat(api): agrega el endpoint GET /transactions/sum/{id}`
+- `test: agrega el test de aceptación con el escenario de ejemplo de la API`
+- `docs: corrige la lista de casos borde cubiertos por los tests`
 
 ### PR 5 — `build/docker`
 
 - `build(docker): agrega Dockerfile multi-stage con runtime JRE y usuario no-root`
 - `build(docker): agrega .dockerignore`
-- Verificación manual: `docker build` + `docker run` + `curl` del escenario de ejemplo.
 
 ### PR 6 — `docs/readme`
 
 - `docs: agrega README con instrucciones, API y resumen del diseño`
-  - Cómo correrlo (Maven y Docker)
-  - Endpoints con ejemplos `curl` y códigos de error
-  - Resumen del diseño, con enlace a `DECISIONS.md`
-  - Limitaciones conocidas: almacenamiento en memoria (se pierde al reiniciar) y precisión de `double`
+- `docs: alinea los docs con la API y el código reales`

@@ -81,7 +81,7 @@ Reglas de dependencia (las flechas sólo apuntan hacia `domain`):
 - **Métodos cortos** con un solo nivel de abstracción. Si un bloque necesita explicación, se extrae a un método con buen nombre.
 - **Sin comentarios ni Javadoc en el código.** Los nombres tienen que explicar la intención y el *porqué* de las decisiones va en `docs/DECISIONS.md`. La única excepción son los marcadores `// given`, `// when` y `// then` de los tests.
 - **Inmutabilidad por defecto:** `record` para el dominio y los DTOs, campos `final` y colecciones devueltas como copias inmutables (`List.copyOf`).
-- **Fallar rápido:** se valida en el borde (Bean Validation en el DTO) y las invariantes en el dominio. No se devuelve `null`: se usa `Optional` en lecturas del repository.
+- **Fallar rápido:** se valida en el borde (Bean Validation en el DTO) y las reglas de negocio en el service, antes de guardar. No se devuelve `null`: se usa `Optional` en lecturas del repository.
 - **Sin estado mutable compartido** fuera del repository. El repository es thread-safe (servidor web = concurrencia).
 - **Sin recursión para recorrer el árbol:** iterativo con `ArrayDeque`, así una cadena larga de padres no causa `StackOverflowError`.
 - **Sin números mágicos ni strings repetidos.** Se usan constantes con nombre.
