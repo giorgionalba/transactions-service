@@ -71,14 +71,15 @@ Reglas de dependencia (las flechas sólo apuntan hacia `domain`):
 
 - **S — Single Responsibility:** cada clase tiene un motivo para cambiar. El controller sólo traduce HTTP, el service sólo aplica reglas de negocio y el repository sólo guarda e indexa. Si una clase empieza a hacer dos cosas, se separa.
 - **O — Open/Closed:** agregar otro almacenamiento (Redis, por ejemplo) = nueva implementación de `TransactionRepository`, sin tocar el service.
-- **L — Liskov:** cualquier implementación del repository tiene que respetar el mismo contrato (por ejemplo, que `saveIfAbsent` sea atómico). Los tests del contrato lo documentan.
+- **L — Liskov:** cualquier implementación del repository tiene que respetar el mismo contrato (por ejemplo, que `saveIfAbsent` sea atómico). El contrato está documentado en `docs/DECISIONS.md`.
 - **I — Interface Segregation:** el puerto expone sólo lo que el service usa. Nada de métodos "por si acaso".
 - **D — Dependency Inversion:** el service depende de la interfaz `TransactionRepository` (definida en `domain`), no de la clase en memoria. La inyección es **por constructor**, nunca `@Autowired` en campos.
 
 ## Buenas prácticas de código
 
 - **Nombres que expliquen la intención.** Nada de `data`, `tmp`, `util`, `manager`. Los métodos son verbos (`create`, `sumWithDescendants`).
-- **Métodos cortos** con un solo nivel de abstracción. Si hace falta un comentario para explicar *qué* hace un bloque, va un método con buen nombre. Los comentarios son para el *porqué*.
+- **Métodos cortos** con un solo nivel de abstracción. Si un bloque necesita explicación, se extrae a un método con buen nombre.
+- **Sin comentarios ni Javadoc en el código.** Los nombres tienen que explicar la intención y el *porqué* de las decisiones va en `docs/DECISIONS.md`. La única excepción son los marcadores `// given`, `// when` y `// then` de los tests.
 - **Inmutabilidad por defecto:** `record` para el dominio y los DTOs, campos `final` y colecciones devueltas como copias inmutables (`List.copyOf`).
 - **Fallar rápido:** se valida en el borde (Bean Validation en el DTO) y las invariantes en el dominio. No se devuelve `null`: se usa `Optional` en lecturas del repository.
 - **Sin estado mutable compartido** fuera del repository. El repository es thread-safe (servidor web = concurrencia).
@@ -112,7 +113,7 @@ Pirámide:
 
 | Qué | Idioma |
 |---|---|
-| Código (clases, métodos, variables, comentarios, tests) | Inglés |
+| Código (clases, métodos, variables, tests) | Inglés |
 | Mensajes de commit | Español, en Conventional Commits (el tipo y el scope quedan en inglés) |
 | PRs (título y descripción) | Español |
 | Documentación (`README`, `docs/`) | Español |
@@ -122,6 +123,7 @@ Pirámide:
 - **Nunca commitear, pushear ni abrir PRs sin aprobación explícita del autor.**
 - **Nunca agregar `Co-Authored-By` ni ninguna otra atribución a Claude o a una IA**, ni en commits ni en PRs.
 - **Flujo:** cada funcionalidad se trabaja en una rama que sale de `main`, se abre un PR y, con el CI en verde, se mergea a `main`. Nunca se commitea directo a `main`.
+- **Merge:** siempre con **merge commit**, nunca con squash. Así los commits del ciclo TDD quedan en el historial de `main` y se ve qué commits entraron en cada PR.
 - Nombres de rama: `feat/...`, `fix/...`, `chore/...`, `docs/...`, `test/...`, `build/...`, `ci/...`.
 - **Conventional Commits** con scope por capa o área: `tipo(scope): descripción`.
   - La descripción va en español, en presente, en minúscula y sin punto final. Los nombres de clases, endpoints y comandos quedan como están en el código.
